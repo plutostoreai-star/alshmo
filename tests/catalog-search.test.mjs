@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+const {outputText}=ts.transpileModule(readFileSync('src/lib/catalog-search.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext}});
+const {normalizeSearch,matchesEquipment}=await import('data:text/javascript;base64,'+Buffer.from(outputText).toString('base64'));
+const forklift={name:'رافعات شوكية',englishName:'Forklifts'};
+for(const query of ['راف','عات','كية','شُوكِيَّة',' FORK ','klift','ifts','fork lifts'])assert.ok(matchesEquipment(query,forklift),query);
+assert.equal(normalizeSearch('أ إ آ ٱ ا'),'ااااا');assert.equal(normalizeSearch('  رَافـِعَات  '),'رافعات');
+assert.ok(matchesEquipment('  ',forklift));assert.equal(matchesEquipment('excavator',forklift),false);
+console.log('Passed Arabic/English beginning, middle, ending, diacritics, Alef variations, whitespace, case and empty/no-match tests.');
