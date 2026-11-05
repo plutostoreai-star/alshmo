@@ -1,32 +1,36 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpLeft, FileText, LockKeyhole } from 'lucide-react';
-import { company, equipmentSpecifications, serviceAreas, quoteForm as copy } from '@/config/company';
+import { company, administrativeLocations, equipmentSpecifications, quoteForm as copy } from '@/config/company';
 import { whatsappInquiryUrl } from '@/lib/whatsapp';
 import { openWhatsappDraft } from '@/lib/open-whatsapp';
 import { specificationOptions, specificationMessage, validateSpecifications, type SpecificationConfig } from '@/lib/equipment-specifications';
 type Field = keyof typeof copy.labels;
-const required: Field[] = ['name','mobile','equipment','city','duration'];
+const required: Field[] = ['name','mobile','equipment','region','governorate','duration'];
 export function QuoteSection() {
  const formRef = useRef<HTMLFormElement>(null);
  const opening = useRef(false);
  const [handoff,setHandoff] = useState<{href:string; opened:boolean}|null>(null);
- const [manualCity,setManualCity] = useState(false);
- const [cityText,setCityText] = useState('');
+ const [regionId,setRegionId]=useState('');
+ const [governorateId,setGovernorateId]=useState('');
+ const [cityText,setCityText]=useState('');
  const [equipmentId,setEquipmentId] = useState('');
  const [specValues,setSpecValues] = useState<Record<string,string>>({});
  const specs=(equipmentSpecifications as Record<string,SpecificationConfig>)[equipmentId];
  const [errors,setErrors] = useState<Record<string,string|undefined>>({});
  function changeEquipment(id:string) { setEquipmentId(id);setSpecValues({});setErrors({});opening.current=false;setHandoff(null); }
  useEffect(()=>{const select=(event:Event)=>{const id=(event as CustomEvent<string>).detail;if(company.categories.some(c=>c.id===id))changeEquipment(id);};window.addEventListener('equipment-inquiry',select);return()=>window.removeEventListener('equipment-inquiry',select);},[]);
+ useEffect(()=>{const select=(event:Event)=>{const value=(event as CustomEvent<{regionId:string;governorateId:string}>).detail;if(!value||!administrativeLocations.governorates.some(g=>g.id===value.governorateId&&g.regionId===value.regionId))return;setRegionId(value.regionId);setGovernorateId(value.governorateId);setCityText('');setErrors(previous=>({...previous,region:undefined,governorate:undefined}));opening.current=false;setHandoff(null);};window.addEventListener('location-inquiry',select);return()=>window.removeEventListener('location-inquiry',select);},[]);
  const configured = copy.whatsappConfirmed && Boolean(whatsappInquiryUrl(company.phone,''));
- function validate(form: HTMLFormElement, blurred?: Field | 'manualCity') {
+ function validate(form: HTMLFormElement, blurred?: Field) {
   const data = new FormData(form); const next: Record<string,string> = {};
   required.forEach(key=>{if(!String(data.get(key)||'').trim()) next[key]=copy.errors.required;});
   const mobile = String(data.get('mobile')||'').trim();
   if(mobile && (!/^\+?[\d\s()-]+$/.test(mobile) || mobile.replace(/\D/g,'').length<7 || mobile.replace(/\D/g,'').length>15)) next.mobile=copy.errors.mobile;
   if(data.get('equipment') && !company.categories.some(c=>c.id===data.get('equipment'))) next.equipment=copy.errors.required;
-  if(data.get('city')==='other') { if(!cityText.trim()) next.manualCity=copy.errors.required; } else if(data.get('city') && !serviceAreas.cities.some(c=>c.id===data.get('city'))) next.city=copy.errors.required;
+
+  if(!administrativeLocations.regions.some(r=>r.id===data.get('region')))next.region=copy.errors.required;
+  if(!administrativeLocations.governorates.some(g=>g.id===data.get('governorate')&&g.regionId===data.get('region')))next.governorate=copy.errors.required;
   Object.assign(next,validateSpecifications(specs,specValues,copy.errors.required));
   setErrors(previous => blurred ? {...previous, [blurred]: next[blurred]} : next); return {data,next};
  }
@@ -36,13 +40,16 @@ export function QuoteSection() {
   if(first){(event.currentTarget.elements.namedItem(first) as HTMLElement)?.focus();return;}
   if(!configured) return;
   const equipment=company.categories.find(c=>c.id===data.get('equipment'))!.name;
-  const city=data.get('city')==='other' ? cityText.trim().replace(/\s+/g,' ') : serviceAreas.cities.find(c=>c.id===data.get('city'))!.name;
-  const message=[copy.messageTitle,...(Object.keys(copy.labels) as Field[]).map(key=>`${copy.labels[key]}: ${key==='equipment'?equipment:key==='city'?city:String(data.get(key)||'').trim()}`).filter(line=>!line.endsWith(': ')),...specificationMessage(specs,specValues),...(specs?[specs.note]:[])].join('\n');
+  const region=administrativeLocations.regions.find(r=>r.id===data.get('region'))!.name;
+  const governorate=administrativeLocations.governorates.find(g=>g.id===data.get('governorate'))!.name;
+  const city=String(data.get('city')||'').trim().replace(/\s+/g,' ');
+  data.set('city',city);
+  const message=[copy.messageTitle,...(Object.keys(copy.labels) as Field[]).map(key=>`${copy.labels[key]}: ${key==='equipment'?equipment:key==='region'?region:key==='governorate'?governorate:key==='city'?city:String(data.get(key)||'').trim()}`).filter(line=>!line.endsWith(': ')),...specificationMessage(specs,specValues),...(specs?[specs.note]:[])].join('\n');
   const href=whatsappInquiryUrl(company.phone,message); if(!href) return; opening.current=true; const opened=openWhatsappDraft(href); setHandoff({href,opened}); if(!opened) opening.current=false;
  }
  function field(key: Field) {
   const props={id:`quote-${key}`,name:key,required:required.includes(key),'aria-invalid':Boolean(errors[key]),'aria-describedby':errors[key]?`quote-${key}-error`:undefined,onBlur:()=>{if(formRef.current) validate(formRef.current,key);}};
-  return <div className={`quote-field ${key==='details'?'quote-field-wide':''}`} key={key}><label htmlFor={props.id}>{copy.labels[key]} {props.required?<span aria-hidden="true">*</span>:<small>({copy.optional})</small>}</label>{key==='equipment'||key==='city'?<select {...props} value={key==='equipment'?equipmentId:undefined} defaultValue={key==='city'?'':undefined} onChange={event=>{if(key==='equipment')changeEquipment(event.target.value);if(key==='city'){setManualCity(event.target.value==='other');setCityText('');setErrors(previous=>({...previous,manualCity:undefined,city:undefined}));}}}><option value="" disabled>{copy.placeholders[key]}</option>{(key==='equipment'?company.categories:serviceAreas.cities).map(option=><option key={option.id} value={option.id}>{option.name}</option>)}{key==='city'&&<option value="other">{copy.otherCityLabel}</option>}</select>:key==='details'?<textarea {...props} rows={4} maxLength={2000} placeholder={copy.placeholders[key]}/>:<input {...props} type={key==='mobile'?'tel':'text'} dir={key==='mobile'?'ltr':undefined} autoComplete={key==='name'?'name':key==='mobile'?'tel':undefined} maxLength={key==='mobile'?24:120} placeholder={copy.placeholders[key]}/>} {key==='city'&&manualCity&&<div className="mt-4"><label htmlFor="quote-manualCity">{copy.manualCityLabel} <span aria-hidden="true">*</span></label><input id="quote-manualCity" name="manualCity" required value={cityText} maxLength={120} placeholder={copy.manualCityPlaceholder} aria-invalid={Boolean(errors.manualCity)} aria-describedby={errors.manualCity?'quote-manualCity-error':undefined} onChange={event=>setCityText(event.target.value)} onBlur={()=>{if(formRef.current)validate(formRef.current,'manualCity');}}/>{errors.manualCity&&<p id="quote-manualCity-error" className="quote-error">{errors.manualCity}</p>}</div>} {errors[key]&&<p id={`quote-${key}-error`} className="quote-error">{errors[key]}</p>}</div>;
+  return <div className={`quote-field ${key==='details'?'quote-field-wide':''}`} key={key}><label htmlFor={props.id}>{copy.labels[key]} {props.required?<span aria-hidden="true">*</span>:<small>({copy.optional})</small>}</label>{key==='region'||key==='governorate'?<select {...props} value={key==='region'?regionId:governorateId} disabled={key==='governorate'&&!regionId} onChange={event=>{if(key==='region'){setRegionId(event.target.value);setGovernorateId('');}else setGovernorateId(event.target.value);setCityText('');setErrors(previous=>({...previous,region:undefined,governorate:undefined}));}}><option value="" disabled>{copy.placeholders[key]}</option>{(key==='region'?administrativeLocations.regions:administrativeLocations.governorates.filter(g=>g.regionId===regionId)).map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select>:key==='equipment'?<select {...props} value={equipmentId} onChange={event=>changeEquipment(event.target.value)}><option value="" disabled>{copy.placeholders[key]}</option>{company.categories.map(option=><option key={option.id} value={option.id}>{option.name}</option>)}</select>:key==='details'?<textarea {...props} rows={4} maxLength={2000} placeholder={copy.placeholders[key]}/>:<input {...props} value={key==='city'?cityText:undefined} onChange={key==='city'?event=>setCityText(event.target.value):undefined} type={key==='mobile'?'tel':'text'} dir={key==='mobile'?'ltr':undefined} autoComplete={key==='name'?'name':key==='mobile'?'tel':undefined} maxLength={key==='mobile'?24:120} placeholder={copy.placeholders[key]}/>} {errors[key]&&<p id={`quote-${key}-error`} className="quote-error">{errors[key]}</p>}</div>;
  }
  function specificationFields() {
   if(!specs)return null;

@@ -1,3 +1,4 @@
+import administrativeAreas from '@/data/saudi-administrative-areas.json';
 import type { CompanyConfig } from '@/types/company';
 // Use an international number including country code. Leave null until verified.
 // Images are illustrative and do not represent the company's actual fleet.
@@ -45,8 +46,8 @@ export const quoteForm = {
  otherCityLabel: 'مدينة أخرى', manualCityLabel: 'اكتب اسم المدينة', manualCityPlaceholder: 'أدخل اسم المدينة التي يقع فيها مشروعك',
  title: 'اطلب عرض سعر لمشروعك', eyebrow: 'طلب عرض سعر / REQUEST A QUOTE',
  introduction: 'شارك متطلباتك لتجهيز استفسار واضح عن المعدات المطلوبة.',
- labels: { name: 'الاسم', mobile: 'رقم الجوال', equipment: 'نوع المعدة', city: 'المدينة', duration: 'مدة الإيجار', details: 'تفاصيل الطلب' },
- placeholders: { name: 'الاسم الكامل', mobile: 'رقم الجوال مع رمز الدولة', equipment: 'اختر نوع المعدة', city: 'اختر المدينة', duration: 'مثال: أسبوع أو شهر', details: 'أضف ما يساعدنا على فهم احتياجات مشروعك' },
+ labels: { name: 'الاسم', mobile: 'رقم الجوال', equipment: 'نوع المعدة', region: 'المنطقة الإدارية', governorate: 'المحافظة / مقر الإمارة', city: 'المدينة', duration: 'مدة الإيجار', details: 'تفاصيل الطلب' },
+ placeholders: { name: 'الاسم الكامل', mobile: 'رقم الجوال مع رمز الدولة', equipment: 'اختر نوع المعدة', region: 'اختر المنطقة الإدارية', governorate: 'اختر المحافظة أو مقر الإمارة', city: 'اكتب اسم المدينة', duration: 'مثال: أسبوع أو شهر', details: 'أضف ما يساعدنا على فهم احتياجات مشروعك' },
  errors: { required: 'يرجى إكمال هذا الحقل.', mobile: 'أدخل رقم جوال صحيحاً من 7 إلى 15 رقماً، ويمكن إضافة رمز الدولة.', summary: 'يرجى مراجعة الحقول الموضحة أدناه.' },
  optional: 'اختياري', requiredNote: 'الحقول المعلّمة بـ * مطلوبة.',
  submit: 'إرسال الطلب عبر واتساب', disabled: 'الإرسال غير مفعّل حالياً',
@@ -95,3 +96,5 @@ export const equipmentSpecifications = {
   ]
  }
 } satisfies Record<string, import('@/lib/equipment-specifications').SpecificationConfig>;
+
+export const administrativeLocations = { ...administrativeAreas, sourceUrl: 'https://gis.taadeen.sa/server/rest/services/Common/BaseMaps/MapServer/2', note: 'اختر موقع المشروع للاستفسار فقط. إمكانية الخدمة والتوفر تتطلب تأكيد الشركة. تشمل القائمة المحافظات ومقار الإمارات بحسب المصدر الجغرافي.', regionLabel: 'المنطقة الإدارية', governorateLabel: 'المحافظة / مقر الإمارة', regionPlaceholder: 'اختر المنطقة الإدارية', governoratePlaceholder: 'اختر المحافظة أو مقر الإمارة' };

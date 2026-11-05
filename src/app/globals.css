@@ -1518,3 +1518,15 @@ header summary {
 .quote-fields>div {
   min-width: 0;
 }
+
+/* Shared administrative location controls; keep the national map unboxed. */
+.administrative-picker{display:grid;gap:10px;margin:24px 0 16px;max-width:480px}
+.administrative-picker label{font-size:13px;font-weight:700}
+.administrative-picker select{width:100%;min-width:0;min-height:48px;border:1px solid #ffffff35;border-radius:6px;background:#0b3974;color:white;padding:10px 12px;font:inherit;font-size:14px}
+.administrative-count{font-size:11px;line-height:1.9;color:#bdd0e6}
+.governorate-list{display:flex;flex-wrap:wrap;gap:8px;max-height:210px;overflow:auto;padding:8px 4px 16px;margin-bottom:20px;scrollbar-width:thin}
+.governorate-list button{min-height:42px;border-bottom:1px solid #ffffff30;padding:6px 10px;font-size:12px;cursor:pointer}
+.governorate-list button[aria-pressed=true]{background:#d4ae57;color:#082e5d;border-radius:4px}
+.governorate-shape{cursor:pointer;transition:fill-opacity .2s}
+.governorate-shape:hover{fill:#d4ae57;fill-opacity:.4}
+@media(max-width:767px){.administrative-picker select{font-size:16px}.governorate-list{max-height:175px}}

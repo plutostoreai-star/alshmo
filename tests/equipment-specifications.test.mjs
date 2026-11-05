@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
-async function source(path) {const {outputText}=ts.transpileModule(readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2020}});return import('data:text/javascript;base64,'+Buffer.from(outputText).toString('base64'));}
+async function source(path) {const {outputText}=ts.transpileModule(readFileSync(path,'utf8').replace("import administrativeAreas from '@/data/saudi-administrative-areas.json';",'const administrativeAreas = '+readFileSync('src/data/saudi-administrative-areas.json','utf8')+';'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2020}});return import('data:text/javascript;base64,'+Buffer.from(outputText).toString('base64'));}
 const {equipmentSpecifications}=await source('src/config/company.ts');
 const {specificationOptions,validateSpecifications,specificationMessage}=await source('src/lib/equipment-specifications.ts');
 const {whatsappInquiryUrl}=await source('src/lib/whatsapp.ts');
