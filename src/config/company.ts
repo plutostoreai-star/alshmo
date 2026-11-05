@@ -9,7 +9,7 @@ export const company: CompanyConfig = {
  { id: 'man-lift', name: 'مان لفت ديزل', englishName: 'Man Lift', description: 'استفسر عن مان لفت ديزل لأعمال الوصول المرتفعة، وحدد ارتفاع العمل المناسب لمتطلبات مشروعك.', imagePosition: 'center', image: '/images/equipment/man-lift.webp', searchAliases: ['Man Lift','Manlift','Boom Lift','مان لفت','مانلفت'], imageCredit: {author:'Chris Woodrich',source:'https://commons.wikimedia.org/wiki/File:JLG_Articulated_Boom_Lift,_London,_Ontario,_2026-08-01.jpg',license:'https://creativecommons.org/licenses/by-sa/4.0/'} },
  { id: 'forklifts', name: 'رافعات شوكية', englishName: 'Forklifts', description: 'استفسر عن الرافعات الشوكية لأعمال مناولة المواد داخل موقعك.', imagePosition: '0% 0%' },
  { id: 'scissor', name: 'رافعات مقصية', englishName: 'Scissor lifts', description: 'ناقش احتياجات الوصول الرأسي وأعمال الصيانة في مشروعك.', imagePosition: '33.333% 0%' },
- { id: 'telescopic', name: 'رافعات تلسكوبية', englishName: 'Telescopic lifts', description: 'تعرّف على خيارات الوصول إلى مناطق العمل المرتفعة.', imagePosition: '66.667% 0%' },
+ { id: 'telescopic', name: 'رافعات تلسكوبية', englishName: 'Telehandler', description: 'رافعة تلسكوبية لرفع ونقل المواد إلى مناطق العمل المرتفعة. استفسر عن ملاءمتها لمتطلبات مشروعك والتوفر.', imagePosition: 'center', image: '/images/equipment/jcb-telehandler-17m.webp', imageAlt: 'صورة مقدمة من العميل لرافعة تلسكوبية JCB بارتفاع عمل 17 متراً', specificationLabel: 'JCB – ارتفاع 17 متر', searchAliases: ['رافعة تلسكوبية','تلسكوبية','Telehandler','JCB','17m','17 متر'] },
  { id: 'bobcat', name: 'بوبكات', englishName: 'Bobcat', description: 'استفسر عن معدات التحميل المدمجة لأعمال الموقع.', imagePosition: '100% 0%' },
  { id: 'jcb', name: 'جي سي بي', englishName: 'JCB', description: 'ناقش متطلبات الحفر والتحميل وتجهيز موقع المشروع.', imagePosition: '0% 100%' },
  { id: 'cranes', name: 'كرينات', englishName: 'Cranes', description: 'شارك تفاصيل أعمال الرفع للاستفسار عن المعدة المناسبة.', imagePosition: '33.333% 100%' },
@@ -21,7 +21,7 @@ export const catalog = {
  introduction: `${company.categories.length} فئات لاستكشاف احتياجات مشروعك. اختر الفئة وأرسل استفسارك لمناقشة المتطلبات والتوفر.`,
  inquiryLabel: 'استفسر عبر واتساب', unavailableLabel: 'واتساب غير مفعّل حالياً',
  unavailableNote: 'ستُفعّل أزرار الاستفسار بعد إضافة رقم الشركة المعتمد.',
- imageNote: 'الصور توضيحية. يُرجى التواصل للتحقق من التوفر والمواصفات.',
+ imageNote: 'يتضمن الكتالوج صوراً توضيحية وصورة رافعة JCB المقدمة من العميل. يُرجى التواصل للتحقق من التوفر والمواصفات.',
  message: (name: string) => `مرحباً، أود الاستفسار عن تأجير ${name}. يرجى إفادتي بالتوفر والتفاصيل المناسبة لمشروعي.`,
 };
 export const navigation = [{ label: 'الرئيسية', href: '#home' }, { label: 'المعدات', href: '#equipment' }, { label: 'نطاق الخدمة', href: '#service-areas' }, { label: 'طلب عرض سعر', href: '#request-quote' }, { label: 'تواصل معنا', href: '#contact' }];
@@ -67,6 +67,14 @@ export const customerService = { label: 'خدمة العملاء عبر واتس
 
 // Requested specifications are inquiry options, not a statement of inventory.
 export const equipmentSpecifications = {
+ telescopic: {
+  note:'بيانات الطلب تخص رافعة تلسكوبية JCB بارتفاع 17 متراً. التوفر وملاءمة المعدة للمشروع يتطلبان تأكيد الشركة.',
+  inquiryLabel:'اطلب عرض سعر – JCB 17 متر',
+  fields:[
+   {id:'brand',label:'العلامة التجارية',fixed:{value:'jcb',label:'JCB'}},
+   {id:'height',label:'ارتفاع العمل المطلوب',fixed:{value:'17',label:'17 متر'}}
+  ]
+ },
  'man-lift': {
   note:'الارتفاعات خيارات للاستفسار فقط. المواصفات النهائية والتوفر تتطلب تأكيد الشركة.',
   inquiryLabel:'حدد المواصفات واطلب عرض سعر',

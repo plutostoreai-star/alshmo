@@ -30,3 +30,13 @@ const item=company.categories.find(c=>c.id==='man-lift');
 for(const query of ['Man Lift','Manlift','Boom Lift','مان لفت','مانلفت','BOOM','انلف'])assert.ok(matchesEquipment(query,item),query);
 assert.equal(company.categories.length,8);
 console.log('Passed: all 16 Man Lift heights, fixed diesel even with tampered state, missing/invalid height, aliases, dynamic count and Arabic WhatsApp encoding.');
+
+const tele=equipmentSpecifications.telescopic;
+assert.deepEqual(validateSpecifications(tele,{},'required'),{});
+const teleMessage=specificationMessage(tele,{brand:'other',height:'99'}).join('\n');
+assert.ok(teleMessage.includes('العلامة التجارية: JCB'));
+assert.ok(teleMessage.includes('ارتفاع العمل المطلوب: 17 متر'));
+assert.equal(new URL(whatsappInquiryUrl('+966569647944',teleMessage)).searchParams.get('text'),teleMessage);
+const teleItem=company.categories.find(c=>c.id==='telescopic');
+for(const query of ['رافعة تلسكوبية','تلسكوبية','Telehandler','JCB','17m'])assert.ok(matchesEquipment(query,teleItem),query);
+console.log('Passed: Telehandler fixed JCB/17m specifications, Arabic draft encoding and all configured search terms.');
